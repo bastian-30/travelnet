@@ -1,0 +1,11 @@
+{
+  "title": "APPiw",
+  "description": "Explore Nicaragua's tourist sites by department with historical insights, nearby lodging, live streams, interactive videos, and user reviews in one platform.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
