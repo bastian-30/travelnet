@@ -57,9 +57,45 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-function VideoPlayer({ videoId, title }: { videoId: string; title: string }) {
+function getApiBase() {
+  if (typeof window === "undefined") {
+    return process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:3000";
+  }
+  const base = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:3000";
+  if (base === "/") {
+    return "";
+  }
+  return base;
+}
+
+function VideoPlayer({
+  videoId,
+  title,
+  videoUrl,
+  videoType,
+}: {
+  videoId?: string;
+  title: string;
+  videoUrl?: string | null;
+  videoType?: string;
+}) {
   const [playing, setPlaying] = useState(false);
-  const thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+  const apiBase = getApiBase();
+
+  const isLocal = videoType === "local" && videoUrl;
+  const src = isLocal
+    ? videoUrl.startsWith("http")
+      ? videoUrl
+      : `${apiBase}${videoUrl}`
+    : videoId
+      ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`
+      : null;
+
+  const thumbnail = isLocal
+    ? undefined
+    : videoId
+      ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
+      : undefined;
 
   return (
     <div
@@ -68,15 +104,34 @@ function VideoPlayer({ videoId, title }: { videoId: string; title: string }) {
     >
       {!playing ? (
         <>
-          <img
-            src={thumbnail}
-            alt={title}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src =
-                "https://images.unsplash.com/photo-1630773899830-15ae96bbd777?w=800&h=450&fit=crop&auto=format";
-            }}
-          />
+          {thumbnail ? (
+            <img
+              src={thumbnail}
+              alt={title}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src =
+                  "https://images.unsplash.com/photo-1630773899830-15ae96bbd777?w=800&h=450&fit=crop&auto=format";
+              }}
+            />
+          ) : (
+            <div
+              className="w-full h-full flex items-center justify-center"
+              style={{
+                background:
+                  "radial-gradient(circle at top, rgba(244,196,48,0.25), transparent 70%), #050D28",
+              }}
+            >
+              <svg
+                className="w-20 h-20"
+                style={{ color: "rgba(240,246,255,0.6)" }}
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </div>
+          )}
           <div className="absolute inset-0" style={{ background: "rgba(5,13,40,0.45)" }} />
           <button
             onClick={() => setPlaying(true)}
@@ -108,14 +163,28 @@ function VideoPlayer({ videoId, title }: { videoId: string; title: string }) {
             </div>
           </button>
         </>
-      ) : (
+      ) : isLocal && src ? (
+        <video
+          className="w-full h-full"
+          src={src}
+          controls
+          autoPlay
+          playsInline
+        />
+      ) : src ? (
         <iframe
           className="w-full h-full"
-          src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`}
+          src={src}
           title={title}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
         />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center">
+          <p className="text-sm" style={{ color: "#8BA3C7" }}>
+            No hay video disponible
+          </p>
+        </div>
       )}
     </div>
   );
@@ -505,7 +574,12 @@ export default function SiteView({ departmentId, siteId, onNavigate }: SiteViewP
               Video Interactivo — {site.name}
             </h2>
             <div className="max-w-3xl">
-              <VideoPlayer videoId={site.videoId} title={site.name} />
+              <VideoPlayer
+                videoId={(site as any).videoId}
+                title={site.name}
+                videoUrl={(site as any).videoUrl || (site as any).video_url}
+                videoType={(site as any).videoType || (site as any).video_type}
+              />
               <div
                 className="mt-4 rounded-xl p-4"
                 style={{

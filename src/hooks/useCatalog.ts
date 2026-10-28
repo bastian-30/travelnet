@@ -41,6 +41,9 @@ function toSite(site: TouristSiteWithMipymes): Site {
     description: site.description,
     history: site.history,
     videoId: extractVideoId(site.videoUrl),
+    videoUrl: site.videoUrl ?? null,
+    videoType: site.videoType ?? "youtube",
+    videoFilename: site.videoFilename ?? null,
     tags: site.tags,
     mipymes: site.mipymes.map(toMipyme),
   };

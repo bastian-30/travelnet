@@ -3,10 +3,12 @@ import express from "express";
 import type { NextFunction, Request, Response } from "express";
 import { config } from "./config.js";
 import { pool, query } from "./db.js";
+import path from "node:path";
 import adminRouter from "./routes/admin.js";
 import authRouter from "./routes/auth.js";
 import contentRouter from "./routes/content.js";
 import streamsRouter from "./routes/streams.js";
+import uploadsRouter from "./routes/uploads.js";
 import type { PgError } from "./types.js";
 
 const app = express();
@@ -28,7 +30,8 @@ app.use(
     },
   }),
 );
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "10mb" }));
+app.use("/uploads", express.static(path.resolve(process.cwd(), "uploads")));
 app.use((_req, res, next) => {
   res.set("X-Content-Type-Options", "nosniff");
   next();
@@ -47,6 +50,7 @@ app.get("/api/health", async (_req, res) => {
 app.use("/api/auth", authRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/streams", streamsRouter);
+app.use("/api/uploads", uploadsRouter);
 app.use("/api", contentRouter);
 
 app.get("/api/destinos", async (_req, res) => {

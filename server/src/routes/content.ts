@@ -53,6 +53,8 @@ export function serializeSite(
     coverImageUrl: site.cover_image_url,
     thumbnailImageUrl: site.thumbnail_image_url,
     videoUrl: site.video_url,
+    videoType: site.video_type || "youtube",
+    videoFilename: site.video_filename || null,
     tags: site.tags,
     isActive: site.is_active,
     mipymes,

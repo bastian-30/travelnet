@@ -33,6 +33,8 @@ export interface TouristSite {
   coverImageUrl: string | null;
   thumbnailImageUrl: string | null;
   videoUrl: string | null;
+  videoType?: "youtube" | "local";
+  videoFilename?: string | null;
   tags: string[];
   isActive: boolean;
 }

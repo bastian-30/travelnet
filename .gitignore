@@ -22,3 +22,7 @@ logs/
 !server/.env.example
 !.env.docker.example
 .next/
+
+# Uploads locales
+uploads/
+public/uploads/
